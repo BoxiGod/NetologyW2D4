@@ -1,25 +1,20 @@
-import requests
-import os
+import app2
 
 
-class YaUploader:
-    access_token = ""
-    headers = {"Authorization": "OAuth " + access_token}
+class TestApp:
 
-    def __init__(self, file_path: str):
-        self.file_path = file_path
+    def test_create_folder(self):
+        name = 'folder'
+        uploader = app2.YaApi()
+        uploader.create_folder(name)
+        exist = app2.requests.get('https://cloud-api.yandex.net/v1/disk/resources?path=' + '%2F'
+                                  + name, headers=uploader.headers)
+        assert exist.status_code == 200
 
-    def upload(self):
-        download_url = requests.get('https://cloud-api.yandex.net/v1/disk/resources/upload?path='
-                                    + os.path.basename(self.file_path), headers=self.headers).json()
-        download = requests.put(download_url['href'], open(self.file_path, 'rb'))
-        if download.status_code == 201:
-            return 'Успешно загружено'
-        else:
-            return 'Ошибка', download
-
-
-if __name__ == '__main__':
-    uploader = YaUploader(r'c:\my_folder\file2.txt')
-    result = uploader.upload()
-    print(result)
+    def test_delete_folder(self):
+        name = 'folder'
+        uploader = app2.YaApi()
+        uploader.delete_folder(name)
+        exist = app2.requests.get('https://cloud-api.yandex.net/v1/disk/resources?path=' + '%2F'
+                                  + name, headers=uploader.headers)
+        assert exist.status_code != 200
